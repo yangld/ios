@@ -3,6 +3,7 @@ package com.example.ios.pushy;
 import com.eatthepath.pushy.apns.ApnsClient;
 import com.eatthepath.pushy.apns.ApnsClientBuilder;
 import com.eatthepath.pushy.apns.PushNotificationResponse;
+import com.eatthepath.pushy.apns.proxy.HttpProxyHandlerFactory;
 import com.eatthepath.pushy.apns.util.SimpleApnsPushNotification;
 import com.eatthepath.pushy.apns.util.concurrent.PushNotificationFuture;
 import com.notnoop.apns.APNS;
@@ -11,6 +12,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -42,6 +44,13 @@ public class IOSClientPush {
 //        token:FE45E37AAEF5A69762D5A85036DF7610BC66F96FBE8400754A9F580D24C5F6CE,magicA13EDF6C-8A06-4273-892B-5AC6106E2E6E
     }
 
+
+    private HttpProxyHandlerFactory getProxy() {
+//        return HttpProxyHandlerFactory.fromSystemProxies(ApnsClientBuilder.PRODUCTION_APNS_HOST);
+        return new HttpProxyHandlerFactory(new InetSocketAddress("192.168.11.37",
+                7443));
+    }
+
     public void push(List<String> deviceTokens, String payload) throws ExecutionException, InterruptedException {
         long startTime = System.currentTimeMillis();
         if (apnsClient == null) {
@@ -49,6 +58,7 @@ public class IOSClientPush {
                 EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
                 apnsClient = new ApnsClientBuilder().setApnsServer(ApnsClientBuilder.PRODUCTION_APNS_HOST)
                         .setClientCredentials(new File("/Users/yanglidong/Desktop/AppPushCert.p12"), "pekall1234")
+                        .setProxyHandlerFactory(this.getProxy())
 //                        .setClientCredentials(new File("/Users/yanglidong/Desktop/push.p12"), "pekall1234")
                         .setConcurrentConnections(4).setEventLoopGroup(eventLoopGroup).build();
             } catch (Exception e) {
