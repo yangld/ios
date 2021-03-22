@@ -1,1 +1,2 @@
 readme
+启动的时候,需要增加配置-Djava.net.preferIPv4Stack=true
